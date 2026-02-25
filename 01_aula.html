@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Revisão de Estatística e Probabilidade</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Disciplina de Simulação de Eventos Discretos" />
+    <meta name="date" content="2026-01-01" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Revisão de Estatística e Probabilidade
+]
+.subtitle[
+## Fundamentos para Simulação de Eventos Discretos
+]
+.author[
+### Disciplina de Simulação de Eventos Discretos
+]
+.date[
+### 2026
+]
+
+---
+
+
+
+
+class: inverse, center, middle
+
+# Por que estudar Probabilidade e Estatística?
+
+---
+
+## Situações do dia a dia de um Administrador
+
+.pull-left[
+**Você já se perguntou:**
+
+- Quantos atendentes preciso contratar?
+- Qual o estoque ideal para não faltar produto?
+- Quanto tempo os clientes esperam na fila?
+- Vale a pena abrir mais um caixa?
+- Como prever demanda futura?
+
+**Todas essas perguntas envolvem incerteza!**
+]
+
+.pull-right[
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## O que é Probabilidade?
+
+**Definição simples:** É a chance de algo acontecer.
+
+### Exemplos práticos:
+
+- **Moeda:** P(Cara) = 50% ou 0,5
+- **Dado:** P(sair 6) = 1/6 ≈ 16,7%
+- **Cliente chegar:** P(chegar entre 9h-10h) = ?
+
+### Regra básica:
+
+`$$\text{Probabilidade} = \frac{\text{Casos favoráveis}}{\text{Casos possíveis}}$$`
+
+**A probabilidade sempre fica entre 0 e 1:**
+- 0 = impossível
+- 0,5 = 50% de chance
+- 1 = certeza
+
+---
+
+## Conceitos Importantes (versão simples)
+
+### Evento
+Algo que pode acontecer.
+- Exemplo: "Cliente chegar", "Produto estar em estoque"
+
+### Experimento Aleatório
+Processo que pode ter resultados diferentes.
+- Exemplo: Observar quantos clientes chegam em 1 hora
+
+### Independência
+Dois eventos são independentes quando um não afeta o outro.
+- Exemplo: Lançar uma moeda duas vezes
+
+### Variável Aleatória
+Um número que representa o resultado de algo incerto.
+- Exemplo: Número de clientes que chegam (pode ser 0, 1, 2, 3...)
+
+---
+
+class: inverse, center, middle
+
+# Medidas que Descrevem Dados
+
+---
+
+## Média (Valor Esperado)
+
+**O que é:** O valor "no meio" dos dados, a tendência central.
+
+**Como calcular:**
+`$$\text{Média} = \frac{\text{Soma de todos os valores}}{\text{Quantidade de valores}}$$`
+
+### Exemplo prático:
+
+Vendas da semana: 10, 15, 12, 18, 15 unidades
+
+`$$\text{Média} = \frac{10 + 15 + 12 + 18 + 15}{5} = \frac{70}{5} = 14 \text{ unidades}$$`
+
+**No Excel:** `=MÉDIA(A1:A5)`
+
+---
+
+## Desvio Padrão (Variabilidade)
+
+**O que é:** Mede o quanto os dados "se espalham" em torno da média.
+
+- **Desvio baixo:** Dados próximos da média (previsível)
+- **Desvio alto:** Dados espalhados (imprevisível)
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+
+**No Excel:** `=DESVPAD(A1:A5)`
+
+---
+
+class: inverse, center, middle
+
+# Distribuições de Probabilidade
+## (Padrões que os dados seguem)
+
+---
+
+## Distribuição Uniforme
+
+**Quando usar:** Todos os resultados têm a mesma chance.
+
+**Exemplo:** Sorteio de um número entre 1 e 10.
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+**Aplicação em Administração:**
+- Tempo de espera uniformemente distribuído
+- Seleção aleatória de itens do estoque
+
+---
+
+## Distribuição Normal (Curva do Sino)
+
+**Quando usar:** Quando a maioria dos valores fica próxima da média.
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+**Exemplos práticos:**
+- Altura de pessoas
+- Erros de medição
+- Tempo de produção de um item
+
+---
+
+## Distribuição Exponencial
+
+**Quando usar:** Para medir **tempo entre eventos**.
+
+**Exemplo clássico:** Tempo entre chegadas de clientes.
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+**Característica importante:**
+- Maioria das chegadas acontece rapidamente
+- Algumas chegadas demoram mais (cauda longa)
+
+**No Excel:** `=DIST.EXPON(x; lambda; VERDADEIRO)`
+
+---
+
+## Distribuição de Poisson
+
+**Quando usar:** Para contar **quantas vezes algo acontece** em um período.
+
+**Exemplos:**
+- Quantos clientes chegam por hora?
+- Quantas ligações recebo por dia?
+- Quantos defeitos por lote?
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+**Relação importante:**
+- Se chegadas seguem **Poisson**, o tempo entre chegadas é **Exponencial**
+
+---
+
+class: inverse, center, middle
+
+# Aplicação Prática: Simulação de Fila
+
+---
+
+## Exemplo: Padaria pela Manhã
+
+**Situação:**
+- Chegam em média **6 clientes por hora**
+- Atendimento demora em média **8 minutos**
+- Temos **1 atendente**
+
+**Perguntas:**
+1. Quanto tempo os clientes esperam?
+2. Preciso contratar mais um atendente?
+
+Vamos simular!
+
+---
+
+## Passo 1: Gerando Chegadas de Clientes
+
+
+``` r
+# Parâmetros
+lambda &lt;- 6  # 6 clientes por hora = 1 a cada 10 minutos
+n_clientes &lt;- 20
+
+# Gerar tempos entre chegadas (em minutos)
+tempo_entre_chegadas &lt;- rexp(n_clientes, rate = lambda/60)
+
+# Calcular momento de chegada de cada cliente
+tempo_chegada &lt;- cumsum(tempo_entre_chegadas)
+
+# Ver os 5 primeiros
+head(data.frame(
+  Cliente = 1:n_clientes,
+  Tempo_Chegada = round(tempo_chegada, 2)
+), 5)
+```
+
+```
+##   Cliente Tempo_Chegada
+## 1       1          0.95
+## 2       2         13.70
+## 3       3         21.20
+## 4       4         31.71
+## 5       5         35.32
+```
+
+---
+
+## Passo 2: Gerando Tempos de Atendimento
+
+
+``` r
+# Tempo médio de atendimento: 8 minutos
+media_atendimento &lt;- 8
+
+# Gerar tempos de atendimento
+tempo_atendimento &lt;- rexp(n_clientes, rate = 1/media_atendimento)
+
+# Ver estatísticas
+cat("Tempo médio gerado:", round(mean(tempo_atendimento), 2), "min\n")
+```
+
+```
+## Tempo médio gerado: 8.4 min
+```
+
+``` r
+cat("Tempo mínimo:", round(min(tempo_atendimento), 2), "min\n")
+```
+
+```
+## Tempo mínimo: 0.38 min
+```
+
+``` r
+cat("Tempo máximo:", round(max(tempo_atendimento), 2), "min\n")
+```
+
+```
+## Tempo máximo: 20.66 min
+```
+
+---
+
+## Passo 3: Simulando a Fila
+
+
+``` r
+# Vetores para armazenar resultados
+inicio_atendimento &lt;- numeric(n_clientes)
+fim_atendimento &lt;- numeric(n_clientes)
+
+# Primeiro cliente
+inicio_atendimento[1] &lt;- tempo_chegada[1]
+fim_atendimento[1] &lt;- inicio_atendimento[1] + tempo_atendimento[1]
+
+# Demais clientes
+for(i in 2:n_clientes) {
+  # Cliente inicia quando chega OU quando atendente fica livre
+  inicio_atendimento[i] &lt;- max(tempo_chegada[i], fim_atendimento[i-1])
+  fim_atendimento[i] &lt;- inicio_atendimento[i] + tempo_atendimento[i]
+}
+
+# Calcular tempo de espera
+tempo_espera &lt;- inicio_atendimento - tempo_chegada
+```
+
+---
+
+## Resultados da Simulação
+
+
+``` r
+# Criar tabela resumo
+resultado &lt;- data.frame(
+  Cliente = 1:n_clientes,
+  Chegada = round(tempo_chegada, 1),
+  Inicio = round(inicio_atendimento, 1),
+  Espera = round(tempo_espera, 1),
+  Atendimento = round(tempo_atendimento, 1),
+  Saida = round(fim_atendimento, 1)
+)
+
+# Mostrar primeiros 6 clientes
+head(resultado)
+```
+
+```
+##   Cliente Chegada Inicio Espera Atendimento Saida
+## 1       1     1.0    1.0    0.0        13.4  14.4
+## 2       2    13.7   14.4    0.7         6.6  21.0
+## 3       3    21.2   21.2    0.0         1.3  22.5
+## 4       4    31.7   31.7    0.0         3.7  35.4
+## 5       5    35.3   35.4    0.1        13.7  49.1
+## 6       6    44.9   49.1    4.2         3.9  53.0
+```
+
+---
+
+## Métricas de Desempenho
+
+
+``` r
+# Calcular métricas importantes
+cat("=== ANÁLISE DO SISTEMA ===\n\n")
+```
+
+```
+## === ANÁLISE DO SISTEMA ===
+```
+
+``` r
+cat("Tempo médio de espera:", round(mean(tempo_espera), 2), "minutos\n")
+```
+
+```
+## Tempo médio de espera: 4.38 minutos
+```
+
+``` r
+cat("Tempo máximo de espera:", round(max(tempo_espera), 2), "minutos\n")
+```
+
+```
+## Tempo máximo de espera: 17.32 minutos
+```
+
+``` r
+cat("Tempo médio no sistema:", 
+    round(mean(tempo_espera + tempo_atendimento), 2), "minutos\n\n")
+```
+
+```
+## Tempo médio no sistema: 12.78 minutos
+```
+
+``` r
+# Quantos não esperaram?
+nao_esperaram &lt;- sum(tempo_espera == 0)
+cat("Clientes atendidos imediatamente:", nao_esperaram, 
+    "de", n_clientes, paste0("(", round(100*nao_esperaram/n_clientes), "%)"))
+```
+
+```
+## Clientes atendidos imediatamente: 7 de 20 (35%)
+```
+
+**Interpretação:** Se os clientes esperam muito, talvez precise contratar mais alguém!
+
+---
+
+## Visualizando a Fila
+
+
+``` r
+# Gráfico de espera por cliente
+ggplot(resultado, aes(x = Cliente, y = Espera)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = mean(tempo_espera), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Tempo de Espera por Cliente",
+       subtitle = paste("Média:", round(mean(tempo_espera), 1), "minutos"),
+       x = "Cliente", y = "Tempo de Espera (min)") +
+  theme_minimal(base_size = 14)
+```
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse, center, middle
+
+# Tomada de Decisão com Dados
+
+---
+
+## Cenário: Contratar ou não um segundo atendente?
+
+**Dados do problema:**
+- Custo de um atendente: R$ 2.000/mês
+- Cada cliente gera receita de R$ 15
+- Clientes que esperam mais de 15 min desistem (30% de chance)
+
+**Análise atual (1 atendente):**
+
+``` r
+# Quantos clientes esperam mais de 15 min?
+clientes_insatisfeitos &lt;- sum(tempo_espera &gt; 15)
+cat("Clientes que esperaram &gt; 15 min:", clientes_insatisfeitos, "\n")
+```
+
+```
+## Clientes que esperaram &gt; 15 min: 1
+```
+
+``` r
+# Perda potencial
+perda_potencial &lt;- clientes_insatisfeitos * 0.30 * 15
+cat("Perda potencial por período: R$", round(perda_potencial, 2))
+```
+
+```
+## Perda potencial por período: R$ 4.5
+```
+
+**Decisão:** Se a perda mensal superar R$ 2.000, vale contratar!
+
+---
+
+## Comparando Cenários
+
+&lt;img src="01_aula_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Ferramentas no Excel
+
+**Funções úteis para simulação:**
+
+| Função | O que faz | Exemplo |
+|--------|-----------|---------|
+| `=ALEATÓRIO()` | Número entre 0 e 1 | Gerar probabilidades |
+| `=ALEATÓRIOENTRE(1;10)` | Número inteiro entre 1 e 10 | Simular dado |
+| `=DIST.EXPON(x;lambda;VERDADEIRO)` | Exponencial | Tempo entre chegadas |
+| `=DIST.NORM(x;média;desvpad;VERDADEIRO)` | Normal | Variáveis naturais |
+| `=MÉDIA()` | Média dos dados | Calcular médias |
+| `=DESVPAD()` | Desvio padrão | Medir variabilidade |
+| `=SE()` | Condição | Lógica de decisão |
+
+---
+
+## Exemplo Prático no Excel
+
+**Simulando 100 chegadas de clientes:**
+
+```
+Coluna A: Cliente (1, 2, 3, ..., 100)
+Coluna B: Tempo entre chegadas
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/10)
+  
+Coluna C: Momento de chegada
+  Fórmula: =SOMA($B$2:B2)
+  
+Coluna D: Tempo de atendimento
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/8)
+  
+Coluna E: Início do atendimento
+  Fórmula linha 2: =C2
+  Fórmula linha 3+: =MÁXIMO(C3;F2)
+  
+Coluna F: Fim do atendimento
+  Fórmula: =E2+D2
+  
+Coluna G: Tempo de espera
+  Fórmula: =E2-C2
+```
+
+---
+
+## Interpretando Resultados
+
+**Boas métricas indicam:**
+
+✅ Tempo médio de espera &lt; 10 minutos  
+✅ Menos de 10% dos clientes esperam &gt; 15 min  
+✅ Utilização do atendente entre 70-85%  
+✅ Custo-benefício positivo  
+
+**Métricas ruins indicam:**
+
+❌ Tempo médio de espera &gt; 20 minutos  
+❌ Mais de 30% dos clientes esperam muito  
+❌ Atendente ocioso (&lt; 50% ocupado) ou sobrecarregado (&gt; 95%)  
+❌ Perda de clientes por insatisfação  
+
+---
+
+class: inverse, center, middle
+
+# Resumo e Conceitos-Chave
+
+---
+
+## O que aprendemos hoje
+
+.pull-left[
+**Conceitos Fundamentais:**
+- Probabilidade (chance de algo acontecer)
+- Média (valor central)
+- Desvio padrão (variabilidade)
+- Variável aleatória (número incerto)
+
+**Distribuições Importantes:**
+- Uniforme (todos iguais)
+- Normal (curva do sino)
+- Exponencial (tempo entre eventos)
+- Poisson (contagem de eventos)
+]
+
+.pull-right[
+**Aplicações Práticas:**
+- Simular chegadas de clientes
+- Calcular tempos de espera
+- Avaliar desempenho de sistemas
+- Tomar decisões baseadas em dados
+
+**Habilidades Desenvolvidas:**
+- Gerar dados aleatórios
+- Calcular métricas de desempenho
+- Interpretar resultados
+- Comparar cenários
+]
+
+---
+
+## Próximos Passos
+
+### Na próxima aula:
+
+1. **Simulação avançada** com múltiplos servidores
+2. **Análise de sensibilidade** (e se mudarmos os parâmetros?)
+3. **Otimização** (qual o melhor cenário?)
+4. **Apresentação de resultados** para tomada de decisão
+
+### Atividade para entregar:
+
+**Simulação de atendimento de uma clínica** (detalhes no documento separado)
+
+---
+
+## Dicas para Estudar
+
+1. **Pratique no Excel:** Faça simulações simples
+2. **Pense em exemplos reais:** Filas, estoques, vendas
+3. **Varie os parâmetros:** Veja como os resultados mudam
+4. **Compare cenários:** Qual opção é melhor?
+5. **Interprete sempre:** Números sozinhos não decidem!
+
+### Recursos úteis:
+
+- Tutoriais de Excel online
+- Vídeos sobre simulação
+- Material complementar no ambiente virtual
+
+---
+
+class: center, middle
+
+# Dúvidas?
+
+## Material disponível no ambiente virtual
+
+**Contato:** [seu email]
+
+**Horário de atendimento:** [definir]
+
+---
+
+class: inverse, center, middle
+
+# Obrigado!
+
+### "Dados transformam decisões!"
+
+*A estatística não é sobre números,*  
+*é sobre entender o mundo e tomar melhores decisões.*
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

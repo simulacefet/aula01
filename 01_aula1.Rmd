@@ -1,0 +1,1461 @@
+---
+title: "Revisão de Estatística e Probabilidade"
+subtitle: "Fundamentos para Simulação de Eventos Discretos"
+author: "Disciplina de Simulação de Eventos Discretos"
+date: "2026"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+    css: [default, default-fonts, "custom.css"]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = 'center',
+  fig.width = 8,
+  fig.height = 5
+)
+library(ggplot2)
+set.seed(2026)
+```
+
+class: inverse, center, middle
+
+# Por que estudar Probabilidade e Estatística?
+
+---
+
+## Situações do dia a dia de um Administrador
+
+.pull-left[
+**Você já se perguntou:**
+
+- Quantos atendentes preciso contratar?
+- Qual o estoque ideal para não faltar produto?
+- Quanto tempo os clientes esperam na fila?
+- Vale a pena abrir mais um caixa?
+- Como prever demanda futura?
+
+**Todas essas perguntas envolvem incerteza!**
+]
+
+.pull-right[
+```{r, echo=FALSE, fig.height=5}
+# Exemplo visual simples
+dias <- 1:30
+vendas <- c(45, 52, 48, 60, 55, 50, 58, 62, 48, 54,
+            56, 59, 51, 47, 53, 61, 57, 55, 49, 63,
+            58, 52, 54, 60, 56, 51, 59, 62, 55, 58)
+
+df <- data.frame(dia = dias, vendas = vendas)
+
+ggplot(df, aes(x = dia, y = vendas)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_hline(yintercept = mean(vendas), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Vendas Diárias - Há um padrão?",
+       x = "Dia do Mês", y = "Vendas (unidades)") +
+  theme_minimal(base_size = 14) +
+  annotate("text", x = 25, y = mean(vendas) + 2, 
+           label = paste("Média:", round(mean(vendas))), color = "red")
+```
+]
+
+---
+
+## O que é Probabilidade?
+
+**Definição simples:** É a chance de algo acontecer.
+
+### Exemplos práticos:
+
+- **Moeda:** P(Cara) = 50% ou 0,5
+- **Dado:** P(sair 6) = 1/6 ≈ 16,7%
+- **Cliente chegar:** P(chegar entre 9h-10h) = ?
+
+### Regra básica:
+
+$$\text{Probabilidade} = \frac{\text{Casos favoráveis}}{\text{Casos possíveis}}$$
+
+**A probabilidade sempre fica entre 0 e 1:**
+- 0 = impossível
+- 0,5 = 50% de chance
+- 1 = certeza
+
+---
+
+## Conceitos Importantes (versão simples)
+
+### Evento
+Algo que pode acontecer.
+- Exemplo: "Cliente chegar", "Produto estar em estoque"
+
+### Experimento Aleatório
+Processo que pode ter resultados diferentes.
+- Exemplo: Observar quantos clientes chegam em 1 hora
+
+### Independência
+Dois eventos são independentes quando um não afeta o outro.
+- Exemplo: Lançar uma moeda duas vezes
+
+### Variável Aleatória
+Um número que representa o resultado de algo incerto.
+- Exemplo: Número de clientes que chegam (pode ser 0, 1, 2, 3...)
+
+---
+
+class: inverse, center, middle
+
+# Medidas que Descrevem Dados
+
+---
+
+## Média (Valor Esperado)
+
+**O que é:** O valor "no meio" dos dados, a tendência central.
+
+**Como calcular:**
+$$\text{Média} = \frac{\text{Soma de todos os valores}}{\text{Quantidade de valores}}$$
+
+### Exemplo prático:
+
+Vendas da semana: 10, 15, 12, 18, 15 unidades
+
+$$\text{Média} = \frac{10 + 15 + 12 + 18 + 15}{5} = \frac{70}{5} = 14 \text{ unidades}$$
+
+**No Excel:** `=MÉDIA(A1:A5)`
+
+---
+
+## Desvio Padrão (Variabilidade)
+
+**O que é:** Mede o quanto os dados "se espalham" em torno da média.
+
+- **Desvio baixo:** Dados próximos da média (previsível)
+- **Desvio alto:** Dados espalhados (imprevisível)
+
+```{r, echo=FALSE, fig.height=4}
+par(mfrow=c(1,2))
+
+# Baixa variabilidade
+set.seed(123)
+dados1 <- rnorm(100, mean = 50, sd = 3)
+hist(dados1, main = "Baixa Variabilidade (DP = 3)", 
+     xlab = "Valores", col = "lightblue", xlim = c(30, 70))
+abline(v = mean(dados1), col = "red", lwd = 2)
+
+# Alta variabilidade
+dados2 <- rnorm(100, mean = 50, sd = 10)
+hist(dados2, main = "Alta Variabilidade (DP = 10)", 
+     xlab = "Valores", col = "lightcoral", xlim = c(30, 70))
+abline(v = mean(dados2), col = "red", lwd = 2)
+```
+
+**No Excel:** `=DESVPAD(A1:A5)`
+
+---
+
+class: inverse, center, middle
+
+# Distribuições de Probabilidade
+## (Padrões que os dados seguem)
+
+---
+
+## Distribuição Uniforme
+
+**Quando usar:** Todos os resultados têm a mesma chance.
+
+**Exemplo:** Sorteio de um número entre 1 e 10.
+
+```{r, echo=FALSE, fig.height=4}
+x <- 0:10
+y <- rep(1/11, 11)
+
+barplot(y, names.arg = x, col = "steelblue",
+        main = "Distribuição Uniforme (0 a 10)",
+        xlab = "Valores", ylab = "Probabilidade",
+        ylim = c(0, 0.15))
+```
+
+**Aplicação em Administração:**
+- Tempo de espera uniformemente distribuído
+- Seleção aleatória de itens do estoque
+
+---
+
+## Distribuição Normal (Curva do Sino)
+
+**Quando usar:** Quando a maioria dos valores fica próxima da média.
+
+```{r, echo=FALSE, fig.height=4.5}
+x <- seq(-4, 4, 0.01)
+y <- dnorm(x)
+
+plot(x, y, type = "l", lwd = 3, col = "darkblue",
+     main = "Distribuição Normal (Curva do Sino)",
+     xlab = "Valores", ylab = "Densidade",
+     yaxt = "n")
+abline(v = 0, col = "red", lty = 2, lwd = 2)
+
+# Adicionar áreas sombreadas
+polygon(c(x[x >= -1 & x <= 1], 1, -1), 
+        c(y[x >= -1 & x <= 1], 0, 0),
+        col = rgb(0, 0, 1, 0.2), border = NA)
+
+text(0, 0.2, "68% dos dados\nentre -1 e +1 DP", col = "blue", cex = 1.2)
+```
+
+**Exemplos práticos:**
+- Altura de pessoas
+- Erros de medição
+- Tempo de produção de um item
+
+---
+
+## Distribuição Exponencial
+
+**Quando usar:** Para medir **tempo entre eventos**.
+
+**Exemplo clássico:** Tempo entre chegadas de clientes.
+
+```{r, echo=FALSE, fig.height=4}
+x <- seq(0, 10, 0.1)
+y <- dexp(x, rate = 0.5)
+
+plot(x, y, type = "l", lwd = 3, col = "darkgreen",
+     main = "Tempo entre Chegadas de Clientes",
+     xlab = "Tempo (minutos)", ylab = "Probabilidade")
+grid()
+```
+
+**Característica importante:**
+- Maioria das chegadas acontece rapidamente
+- Algumas chegadas demoram mais (cauda longa)
+
+**No Excel:** `=DIST.EXPON(x; lambda; VERDADEIRO)`
+
+---
+
+## Distribuição de Poisson
+
+**Quando usar:** Para contar **quantas vezes algo acontece** em um período.
+
+**Exemplos:**
+- Quantos clientes chegam por hora?
+- Quantas ligações recebo por dia?
+- Quantos defeitos por lote?
+
+```{r, echo=FALSE, fig.height=4}
+x <- 0:15
+y <- dpois(x, lambda = 5)
+
+barplot(y, names.arg = x, col = "coral",
+        main = "Número de Clientes por Hora (média = 5)",
+        xlab = "Número de Clientes", ylab = "Probabilidade")
+```
+
+**Relação importante:**
+- Se chegadas seguem **Poisson**, o tempo entre chegadas é **Exponencial**
+
+---
+
+class: inverse, center, middle
+
+# Aplicação Prática: Simulação de Fila
+
+---
+
+## Exemplo: Padaria pela Manhã
+
+**Situação:**
+- Chegam em média **6 clientes por hora**
+- Atendimento demora em média **8 minutos**
+- Temos **1 atendente**
+
+**Perguntas:**
+1. Quanto tempo os clientes esperam?
+2. Preciso contratar mais um atendente?
+
+Vamos simular!
+
+---
+
+## Passo 1: Gerando Chegadas de Clientes
+
+```{r}
+# Parâmetros
+lambda <- 6  # 6 clientes por hora = 1 a cada 10 minutos
+n_clientes <- 20
+
+# Gerar tempos entre chegadas (em minutos)
+tempo_entre_chegadas <- rexp(n_clientes, rate = lambda/60)
+
+# Calcular momento de chegada de cada cliente
+tempo_chegada <- cumsum(tempo_entre_chegadas)
+
+# Ver os 5 primeiros
+head(data.frame(
+  Cliente = 1:n_clientes,
+  Tempo_Chegada = round(tempo_chegada, 2)
+), 5)
+```
+
+---
+
+## Passo 2: Gerando Tempos de Atendimento
+
+```{r}
+# Tempo médio de atendimento: 8 minutos
+media_atendimento <- 8
+
+# Gerar tempos de atendimento
+tempo_atendimento <- rexp(n_clientes, rate = 1/media_atendimento)
+
+# Ver estatísticas
+cat("Tempo médio gerado:", round(mean(tempo_atendimento), 2), "min\n")
+cat("Tempo mínimo:", round(min(tempo_atendimento), 2), "min\n")
+cat("Tempo máximo:", round(max(tempo_atendimento), 2), "min\n")
+```
+
+---
+
+## Passo 3: Simulando a Fila
+
+```{r}
+# Vetores para armazenar resultados
+inicio_atendimento <- numeric(n_clientes)
+fim_atendimento <- numeric(n_clientes)
+
+# Primeiro cliente
+inicio_atendimento[1] <- tempo_chegada[1]
+fim_atendimento[1] <- inicio_atendimento[1] + tempo_atendimento[1]
+
+# Demais clientes
+for(i in 2:n_clientes) {
+  # Cliente inicia quando chega OU quando atendente fica livre
+  inicio_atendimento[i] <- max(tempo_chegada[i], fim_atendimento[i-1])
+  fim_atendimento[i] <- inicio_atendimento[i] + tempo_atendimento[i]
+}
+
+# Calcular tempo de espera
+tempo_espera <- inicio_atendimento - tempo_chegada
+```
+
+---
+
+## Resultados da Simulação
+
+```{r}
+# Criar tabela resumo
+resultado <- data.frame(
+  Cliente = 1:n_clientes,
+  Chegada = round(tempo_chegada, 1),
+  Inicio = round(inicio_atendimento, 1),
+  Espera = round(tempo_espera, 1),
+  Atendimento = round(tempo_atendimento, 1),
+  Saida = round(fim_atendimento, 1)
+)
+
+# Mostrar primeiros 6 clientes
+head(resultado)
+```
+
+---
+
+## Métricas de Desempenho
+
+```{r}
+# Calcular métricas importantes
+cat("=== ANÁLISE DO SISTEMA ===\n\n")
+
+cat("Tempo médio de espera:", round(mean(tempo_espera), 2), "minutos\n")
+cat("Tempo máximo de espera:", round(max(tempo_espera), 2), "minutos\n")
+cat("Tempo médio no sistema:", 
+    round(mean(tempo_espera + tempo_atendimento), 2), "minutos\n\n")
+
+# Quantos não esperaram?
+nao_esperaram <- sum(tempo_espera == 0)
+cat("Clientes atendidos imediatamente:", nao_esperaram, 
+    "de", n_clientes, paste0("(", round(100*nao_esperaram/n_clientes), "%)"))
+```
+
+**Interpretação:** Se os clientes esperam muito, talvez precise contratar mais alguém!
+
+---
+
+## Visualizando a Fila
+
+```{r, fig.height=5}
+# Gráfico de espera por cliente
+ggplot(resultado, aes(x = Cliente, y = Espera)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = mean(tempo_espera), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Tempo de Espera por Cliente",
+       subtitle = paste("Média:", round(mean(tempo_espera), 1), "minutos"),
+       x = "Cliente", y = "Tempo de Espera (min)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+class: inverse, center, middle
+
+# Tomada de Decisão com Dados
+
+---
+
+## Cenário: Contratar ou não um segundo atendente?
+
+**Dados do problema:**
+- Custo de um atendente: R$ 2.000/mês
+- Cada cliente gera receita de R$ 15
+- Clientes que esperam mais de 15 min desistem (30% de chance)
+
+**Análise atual (1 atendente):**
+```{r}
+# Quantos clientes esperam mais de 15 min?
+clientes_insatisfeitos <- sum(tempo_espera > 15)
+cat("Clientes que esperaram > 15 min:", clientes_insatisfeitos, "\n")
+
+# Perda potencial
+perda_potencial <- clientes_insatisfeitos * 0.30 * 15
+cat("Perda potencial por período: R$", round(perda_potencial, 2))
+```
+
+**Decisão:** Se a perda mensal superar R$ 2.000, vale contratar!
+
+---
+
+## Comparando Cenários
+
+```{r, echo=FALSE, fig.height=5}
+# Simular com 2 atendentes
+n_clientes <- 50
+tempo_chegada <- cumsum(rexp(n_clientes, rate = 6/60))
+tempo_atendimento <- rexp(n_clientes, rate = 1/8)
+
+# 1 atendente
+espera_1 <- numeric(n_clientes)
+fim_1 <- numeric(n_clientes)
+fim_1[1] <- tempo_chegada[1] + tempo_atendimento[1]
+for(i in 2:n_clientes) {
+  inicio <- max(tempo_chegada[i], fim_1[i-1])
+  espera_1[i] <- inicio - tempo_chegada[i]
+  fim_1[i] <- inicio + tempo_atendimento[i]
+}
+
+# 2 atendentes (simplificado)
+espera_2 <- espera_1 * 0.3  # Redução aproximada
+
+df_comp <- data.frame(
+  Cenario = rep(c("1 Atendente", "2 Atendentes"), each = n_clientes),
+  Cliente = rep(1:n_clientes, 2),
+  Espera = c(espera_1, espera_2)
+)
+
+ggplot(df_comp, aes(x = Cenario, y = Espera, fill = Cenario)) +
+  geom_boxplot() +
+  labs(title = "Comparação de Tempo de Espera",
+       y = "Tempo de Espera (min)") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none")
+```
+
+---
+
+## Ferramentas no Excel
+
+**Funções úteis para simulação:**
+
+| Função | O que faz | Exemplo |
+|--------|-----------|---------|
+| `=ALEATÓRIO()` | Número entre 0 e 1 | Gerar probabilidades |
+| `=ALEATÓRIOENTRE(1;10)` | Número inteiro entre 1 e 10 | Simular dado |
+| `=DIST.EXPON(x;lambda;VERDADEIRO)` | Exponencial | Tempo entre chegadas |
+| `=DIST.NORM(x;média;desvpad;VERDADEIRO)` | Normal | Variáveis naturais |
+| `=MÉDIA()` | Média dos dados | Calcular médias |
+| `=DESVPAD()` | Desvio padrão | Medir variabilidade |
+| `=SE()` | Condição | Lógica de decisão |
+
+---
+
+## Exemplo Prático no Excel
+
+**Simulando 100 chegadas de clientes:**
+
+```
+Coluna A: Cliente (1, 2, 3, ..., 100)
+Coluna B: Tempo entre chegadas
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/10)
+  
+Coluna C: Momento de chegada
+  Fórmula: =SOMA($B$2:B2)
+  
+Coluna D: Tempo de atendimento
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/8)
+  
+Coluna E: Início do atendimento
+  Fórmula linha 2: =C2
+  Fórmula linha 3+: =MÁXIMO(C3;F2)
+  
+Coluna F: Fim do atendimento
+  Fórmula: =E2+D2
+  
+Coluna G: Tempo de espera
+  Fórmula: =E2-C2
+```
+
+---
+
+## Interpretando Resultados
+
+**Boas métricas indicam:**
+
+✅ Tempo médio de espera < 10 minutos  
+✅ Menos de 10% dos clientes esperam > 15 min  
+✅ Utilização do atendente entre 70-85%  
+✅ Custo-benefício positivo  
+
+**Métricas ruins indicam:**
+
+❌ Tempo médio de espera > 20 minutos  
+❌ Mais de 30% dos clientes esperam muito  
+❌ Atendente ocioso (< 50% ocupado) ou sobrecarregado (> 95%)  
+❌ Perda de clientes por insatisfação  
+
+---
+
+class: inverse, center, middle
+
+# Resumo e Conceitos-Chave
+
+---
+
+## O que aprendemos hoje
+
+.pull-left[
+**Conceitos Fundamentais:**
+- Probabilidade (chance de algo acontecer)
+- Média (valor central)
+- Desvio padrão (variabilidade)
+- Variável aleatória (número incerto)
+
+**Distribuições Importantes:**
+- Uniforme (todos iguais)
+- Normal (curva do sino)
+- Exponencial (tempo entre eventos)
+- Poisson (contagem de eventos)
+]
+
+.pull-right[
+**Aplicações Práticas:**
+- Simular chegadas de clientes
+- Calcular tempos de espera
+- Avaliar desempenho de sistemas
+- Tomar decisões baseadas em dados
+
+**Habilidades Desenvolvidas:**
+- Gerar dados aleatórios
+- Calcular métricas de desempenho
+- Interpretar resultados
+- Comparar cenários
+]
+
+---
+
+## Próximos Passos
+
+### Na próxima aula:
+
+1. **Simulação avançada** com múltiplos servidores
+2. **Análise de sensibilidade** (e se mudarmos os parâmetros?)
+3. **Otimização** (qual o melhor cenário?)
+4. **Apresentação de resultados** para tomada de decisão
+
+### Atividade para entregar:
+
+**Simulação de atendimento de uma clínica** (detalhes no documento separado)
+
+---
+
+## Dicas para Estudar
+
+1. **Pratique no Excel:** Faça simulações simples
+2. **Pense em exemplos reais:** Filas, estoques, vendas
+3. **Varie os parâmetros:** Veja como os resultados mudam
+4. **Compare cenários:** Qual opção é melhor?
+5. **Interprete sempre:** Números sozinhos não decidem!
+
+### Recursos úteis:
+
+- Tutoriais de Excel online
+- Vídeos sobre simulação
+- Material complementar no ambiente virtual
+
+---
+
+class: center, middle
+
+# Dúvidas?
+
+## Material disponível no ambiente virtual
+
+**Contato:** [seu email]
+
+**Horário de atendimento:** [definir]
+
+---
+
+class: inverse, center, middle
+
+# Obrigado!
+
+### "Dados transformam decisões!"
+
+*A estatística não é sobre números,*  
+*é sobre entender o mundo e tomar melhores decisões.*
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = 'center',
+  fig.width = 8,
+  fig.height = 5
+)
+library(tidyverse)
+library(ggplot2)
+set.seed(2026)
+```
+
+class: inverse, center, middle
+
+# Parte 1: Fundamentos de Probabilidade
+
+---
+
+## Por que revisar Estatística para Simulação?
+
+.pull-left[
+**Simulação de Eventos Discretos depende de:**
+
+- Variáveis aleatórias para modelar incertezas
+- Distribuições de probabilidade para descrever comportamentos
+- Geração de números aleatórios
+- Análise estatística dos resultados
+
+**Exemplos em SED:**
+- Tempo entre chegadas de clientes
+- Tempo de atendimento
+- Taxas de falha de equipamentos
+]
+
+.pull-right[
+```{r, echo=FALSE, fig.height=5}
+# Simulação simples de chegadas em fila
+set.seed(123)
+chegadas <- cumsum(rexp(50, rate = 1/5))
+df <- data.frame(tempo = chegadas, cliente = 1:50)
+
+ggplot(df, aes(x = tempo, y = cliente)) +
+  geom_step(color = "steelblue", size = 1) +
+  labs(title = "Exemplo: Chegadas de Clientes no Tempo",
+       x = "Tempo (minutos)", 
+       y = "Número de Clientes") +
+  theme_minimal(base_size = 14)
+```
+]
+
+---
+
+## Conceitos Fundamentais de Probabilidade
+
+### Experimento Aleatório
+Processo que gera resultados não determinísticos.
+
+**Exemplo:** Tempo entre chegadas de clientes em um banco.
+
+### Espaço Amostral (Ω)
+Conjunto de todos os resultados possíveis.
+
+### Evento
+Subconjunto do espaço amostral.
+
+### Probabilidade P(A)
+Medida da chance de ocorrência de um evento A.
+
+$$0 \leq P(A) \leq 1$$
+
+$$P(\Omega) = 1$$
+
+---
+
+## Axiomas e Propriedades Importantes
+
+.pull-left[
+**Axiomas de Kolmogorov:**
+
+1. $P(A) \geq 0$ para qualquer evento A
+
+2. $P(\Omega) = 1$
+
+3. Se $A_1, A_2, ...$ são mutuamente exclusivos:
+   $$P(\bigcup_{i=1}^{\infty} A_i) = \sum_{i=1}^{\infty} P(A_i)$$
+]
+
+.pull-right[
+**Propriedades úteis:**
+
+- $P(A^c) = 1 - P(A)$
+
+- $P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+
+- Se A e B são independentes:
+  $$P(A \cap B) = P(A) \cdot P(B)$$
+]
+
+---
+
+## Probabilidade Condicional
+
+$$P(A|B) = \frac{P(A \cap B)}{P(B)}, \quad P(B) > 0$$
+
+**Interpretação:** Probabilidade de A ocorrer dado que B já ocorreu.
+
+### Teorema de Bayes
+
+$$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$$
+
+**Aplicação em Simulação:**
+- Atualizar probabilidades com novas informações
+- Modelar sistemas adaptativos
+
+---
+
+class: inverse, center, middle
+
+# Parte 2: Variáveis Aleatórias
+
+---
+
+## Variável Aleatória (VA)
+
+**Definição:** Função que associa valores numéricos aos resultados de um experimento aleatório.
+
+$$X: \Omega \rightarrow \mathbb{R}$$
+
+### Tipos:
+
+1. **Discreta:** Assume valores enumeráveis (contáveis)
+   - Exemplo: Número de clientes em uma hora
+
+2. **Contínua:** Assume valores em intervalos contínuos
+   - Exemplo: Tempo de atendimento
+
+---
+
+## Função de Distribuição Acumulada (FDA)
+
+$$F_X(x) = P(X \leq x)$$
+
+**Propriedades:**
+
+- $0 \leq F_X(x) \leq 1$
+- Não-decrescente
+- $\lim_{x \to -\infty} F_X(x) = 0$ e $\lim_{x \to \infty} F_X(x) = 1$
+
+```{r, echo=FALSE, fig.height=3.5}
+x <- seq(-4, 4, 0.01)
+y <- pnorm(x)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "darkgreen", size = 1.2) +
+  labs(title = "FDA de uma Normal Padrão",
+       x = "x", y = "F(x)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Função Densidade de Probabilidade (fdp) - VA Contínua
+
+Para VA contínua X, a fdp $f_X(x)$ satisfaz:
+
+$$P(a < X \leq b) = \int_a^b f_X(x)dx$$
+
+$$F_X(x) = \int_{-\infty}^x f_X(t)dt$$
+
+**Propriedades:**
+- $f_X(x) \geq 0$
+- $\int_{-\infty}^{\infty} f_X(x)dx = 1$
+
+---
+
+## Função de Probabilidade (fp) - VA Discreta
+
+Para VA discreta X:
+
+$$p_X(x) = P(X = x)$$
+
+**Propriedades:**
+- $p_X(x) \geq 0$
+- $\sum_{x} p_X(x) = 1$
+
+```{r, echo=FALSE, fig.height=3.5}
+x <- 0:10
+prob <- dpois(x, lambda = 3)
+
+ggplot(data.frame(x, prob), aes(x, prob)) +
+  geom_col(fill = "steelblue", width = 0.5) +
+  labs(title = "Função de Probabilidade - Poisson(λ=3)",
+       x = "x", y = "P(X = x)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Esperança Matemática (Valor Esperado)
+
+**VA Discreta:**
+$$E[X] = \sum_{x} x \cdot p_X(x)$$
+
+**VA Contínua:**
+$$E[X] = \int_{-\infty}^{\infty} x \cdot f_X(x)dx$$
+
+**Propriedades:**
+- $E[aX + b] = aE[X] + b$
+- $E[X + Y] = E[X] + E[Y]$
+- Se X e Y são independentes: $E[XY] = E[X] \cdot E[Y]$
+
+---
+
+## Variância e Desvio Padrão
+
+**Variância:**
+$$Var(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
+
+**Desvio Padrão:**
+$$\sigma_X = \sqrt{Var(X)}$$
+
+**Propriedades:**
+- $Var(aX + b) = a^2 Var(X)$
+- Se X e Y são independentes: $Var(X + Y) = Var(X) + Var(Y)$
+
+**Importância na Simulação:** Medidas de dispersão ajudam a avaliar variabilidade e precisão dos resultados.
+
+---
+
+class: inverse, center, middle
+
+# Parte 3: Distribuições de Probabilidade Essenciais
+
+---
+
+## Distribuição Uniforme Contínua U(a,b)
+
+**Aplicação em Simulação:** Base para geração de números aleatórios.
+
+$$f_X(x) = \frac{1}{b-a}, \quad a \leq x \leq b$$
+
+$$E[X] = \frac{a+b}{2}, \quad Var(X) = \frac{(b-a)^2}{12}$$
+
+```{r, echo=FALSE, fig.height=3.5}
+x <- seq(-0.5, 5.5, 0.01)
+y <- dunif(x, min = 0, max = 5)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "purple", size = 1.2) +
+  labs(title = "Distribuição Uniforme U(0,5)",
+       x = "x", y = "f(x)") +
+  ylim(0, 0.3) +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Distribuição Exponencial Exp(λ)
+
+**Aplicação:** Modelar tempo entre eventos em processos de Poisson (chegadas, falhas).
+
+$$f_X(x) = \lambda e^{-\lambda x}, \quad x \geq 0$$
+
+$$E[X] = \frac{1}{\lambda}, \quad Var(X) = \frac{1}{\lambda^2}$$
+
+**Propriedade memoryless:** $P(X > s+t | X > s) = P(X > t)$
+
+```{r, echo=FALSE, fig.height=3}
+x <- seq(0, 10, 0.01)
+df <- data.frame(
+  x = rep(x, 2),
+  y = c(dexp(x, rate = 0.5), dexp(x, rate = 1)),
+  lambda = rep(c("λ=0.5", "λ=1"), each = length(x))
+)
+
+ggplot(df, aes(x, y, color = lambda)) +
+  geom_line(size = 1.2) +
+  labs(title = "Distribuição Exponencial", x = "x", y = "f(x)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Distribuição Normal (Gaussiana) N(μ, σ²)
+
+$$f_X(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
+
+$$E[X] = \mu, \quad Var(X) = \sigma^2$$
+
+**Normal Padrão:** $Z \sim N(0,1)$
+
+**Transformação:** Se $X \sim N(\mu, \sigma^2)$, então $Z = \frac{X-\mu}{\sigma} \sim N(0,1)$
+
+```{r, echo=FALSE, fig.height=3}
+x <- seq(-6, 6, 0.01)
+df <- data.frame(
+  x = rep(x, 3),
+  y = c(dnorm(x, 0, 1), dnorm(x, 0, 2), dnorm(x, 2, 1)),
+  dist = rep(c("N(0,1)", "N(0,4)", "N(2,1)"), each = length(x))
+)
+
+ggplot(df, aes(x, y, color = dist)) +
+  geom_line(size = 1.2) +
+  labs(title = "Distribuição Normal", x = "x", y = "f(x)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Distribuição de Poisson Poisson(λ)
+
+**Aplicação:** Número de eventos em intervalo fixo (chegadas, chamadas, falhas).
+
+$$P(X = k) = \frac{e^{-\lambda}\lambda^k}{k!}, \quad k = 0, 1, 2, ...$$
+
+$$E[X] = \lambda, \quad Var(X) = \lambda$$
+
+**Relação com Exponencial:** Se chegadas seguem Poisson(λ), tempo entre chegadas é Exp(λ).
+
+```{r, echo=FALSE, fig.height=3}
+k <- 0:15
+df <- data.frame(
+  k = rep(k, 2),
+  prob = c(dpois(k, 3), dpois(k, 7)),
+  lambda = rep(c("λ=3", "λ=7"), each = length(k))
+)
+
+ggplot(df, aes(k, prob, fill = lambda)) +
+  geom_col(position = "dodge") +
+  labs(title = "Distribuição de Poisson", x = "k", y = "P(X=k)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Distribuição Triangular Tri(a, b, c)
+
+**Aplicação:** Quando temos mínimo, máximo e moda (sem dados históricos).
+
+$$f_X(x) = \begin{cases}
+\frac{2(x-a)}{(b-a)(c-a)} & a \leq x < c \\
+\frac{2(b-x)}{(b-a)(b-c)} & c \leq x \leq b
+\end{cases}$$
+
+$$E[X] = \frac{a+b+c}{3}$$
+
+```{r, echo=FALSE, fig.height=3}
+# Função densidade triangular
+dtri <- function(x, a, b, c) {
+  ifelse(x < a | x > b, 0,
+    ifelse(x < c, 
+      2*(x-a)/((b-a)*(c-a)),
+      2*(b-x)/((b-a)*(b-c))
+    )
+  )
+}
+
+x <- seq(0, 10, 0.01)
+y <- dtri(x, 2, 8, 5)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "darkred", size = 1.2) +
+  labs(title = "Distribuição Triangular Tri(2, 8, 5)",
+       x = "x", y = "f(x)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Outras Distribuições Relevantes
+
+.pull-left[
+**Distribuição de Erlang**
+- Soma de k exponenciais independentes
+- Modelar tempo de atendimento com múltiplas fases
+
+**Distribuição Weibull**
+- Modelar tempos de falha
+- Taxa de falha crescente/decrescente
+
+**Distribuição Lognormal**
+- Tempos de reparo
+- Variáveis multiplicativas
+]
+
+.pull-right[
+**Distribuição Geométrica**
+- Número de tentativas até primeiro sucesso
+- Sistemas com tentativas repetidas
+
+**Distribuição Binomial**
+- Número de sucessos em n tentativas
+- Sistemas com componentes redundantes
+]
+
+---
+
+class: inverse, center, middle
+
+# Parte 4: Geração de Números Aleatórios
+
+---
+
+## Fundamento da Simulação Estocástica
+
+**Princípio Base:** Toda simulação estocástica começa com U(0,1).
+
+### Gerador de Números Pseudo-Aleatórios
+
+Sequência determinística que **aparenta** ser aleatória.
+
+**Propriedades desejáveis:**
+1. Uniformidade: distribuição uniforme em [0,1]
+2. Independência: valores não correlacionados
+3. Período longo: antes de repetir
+4. Eficiência computacional
+5. Reprodutibilidade (via seed)
+
+```{r}
+set.seed(2026)  # Define semente para reprodutibilidade
+runif(5)        # Gera 5 números uniformes em [0,1]
+```
+
+---
+
+## Método da Transformação Inversa
+
+**Teorema:** Se U ~ Uniforme(0,1) e $F_X$ é FDA de X, então:
+
+$$X = F_X^{-1}(U)$$
+
+tem distribuição $F_X$.
+
+**Algoritmo:**
+1. Gerar U ~ U(0,1)
+2. Calcular $x = F_X^{-1}(u)$
+3. Retornar x
+
+**Exemplo - Exponencial:**
+
+$$F_X(x) = 1 - e^{-\lambda x} \Rightarrow X = -\frac{\ln(1-U)}{\lambda}$$
+
+---
+
+## Geração de Exponencial no R
+
+```{r, fig.height=4}
+# Método manual usando transformação inversa
+lambda <- 0.5
+n <- 1000
+U <- runif(n)
+X_manual <- -log(1-U)/lambda
+
+# Usando função do R
+X_rexp <- rexp(n, rate = lambda)
+
+# Comparação
+par(mfrow=c(1,2))
+hist(X_manual, breaks=30, main="Manual (Transf. Inversa)", 
+     xlab="x", probability = TRUE)
+curve(dexp(x, lambda), add=TRUE, col="red", lwd=2)
+
+hist(X_rexp, breaks=30, main="Função rexp()", 
+     xlab="x", probability = TRUE)
+curve(dexp(x, lambda), add=TRUE, col="red", lwd=2)
+```
+
+---
+
+## Outras Técnicas de Geração
+
+### Método da Aceitação-Rejeição
+Para distribuições sem inversa analítica.
+
+### Método da Composição
+Combinar múltiplas distribuições.
+
+### Transformações
+- **Box-Muller:** Para gerar normais a partir de uniformes
+- **Somas:** Erlang como soma de exponenciais
+
+```{r}
+# Gerando Normal via Box-Muller
+U1 <- runif(1000)
+U2 <- runif(1000)
+Z1 <- sqrt(-2*log(U1)) * cos(2*pi*U2)
+Z2 <- sqrt(-2*log(U1)) * sin(2*pi*U2)
+
+# Verificação
+mean(Z1); sd(Z1)  # Deve ser ~0 e ~1
+```
+
+---
+
+class: inverse, center, middle
+
+# Parte 5: Aplicações em Simulação de Eventos Discretos
+
+---
+
+## Exemplo 1: Simulação de Fila M/M/1
+
+Sistema com:
+- **Chegadas:** Processo de Poisson (λ) → Tempos entre chegadas Exp(λ)
+- **Atendimento:** Tempo exponencial (μ)
+- **1 servidor**
+
+```{r}
+# Parâmetros
+lambda <- 2  # 2 clientes/hora
+mu <- 3      # 3 atendimentos/hora
+n_clientes <- 100
+
+# Geração de dados
+tempo_entre_chegadas <- rexp(n_clientes, rate = lambda)
+tempo_chegada <- cumsum(tempo_entre_chegadas)
+tempo_atendimento <- rexp(n_clientes, rate = mu)
+
+# Data frame para análise
+fila_dados <- data.frame(
+  cliente = 1:n_clientes,
+  chegada = tempo_chegada,
+  duracao_atendimento = tempo_atendimento
+)
+
+head(fila_dados, 4)
+```
+
+---
+
+## Exemplo 1: Cálculo de Métricas (continuação)
+
+```{r}
+# Cálculo de início e fim de atendimento
+fila_dados$inicio_atendimento <- 0
+fila_dados$fim_atendimento <- 0
+
+for(i in 1:n_clientes) {
+  if(i == 1) {
+    fila_dados$inicio_atendimento[i] <- fila_dados$chegada[i]
+  } else {
+    fila_dados$inicio_atendimento[i] <- max(
+      fila_dados$chegada[i], 
+      fila_dados$fim_atendimento[i-1]
+    )
+  }
+  fila_dados$fim_atendimento[i] <- fila_dados$inicio_atendimento[i] + 
+                                    fila_dados$duracao_atendimento[i]
+}
+
+# Tempo de espera na fila
+fila_dados$tempo_espera <- fila_dados$inicio_atendimento - fila_dados$chegada
+
+# Métricas
+cat("Tempo médio de espera:", mean(fila_dados$tempo_espera), "horas\n")
+cat("Tempo médio no sistema:", 
+    mean(fila_dados$tempo_espera + fila_dados$duracao_atendimento), "horas\n")
+```
+
+---
+
+## Exemplo 2: Teste de Qualidade com Probabilidades
+
+Processo de inspeção com:
+- 90% dos itens são aprovados
+- 10% são rejeitados
+
+```{r, fig.height=3.5}
+n_itens <- 1000
+prob_aprovado <- 0.9
+
+# Simulação
+U <- runif(n_itens)
+resultado <- ifelse(U <= prob_aprovado, "Aprovado", "Rejeitado")
+
+# Análise
+table(resultado)
+prop.table(table(resultado))
+
+# Visualização
+df_resultado <- data.frame(resultado = resultado)
+ggplot(df_resultado, aes(x = resultado, fill = resultado)) +
+  geom_bar() +
+  labs(title = "Resultados da Inspeção (n=1000)",
+       y = "Frequência") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+## Exemplo 3: Análise de Saída - Intervalo de Confiança
+
+```{r}
+# Simulando múltiplas replicações
+n_replicacoes <- 30
+tempos_espera_medios <- numeric(n_replicacoes)
+
+for(rep in 1:n_replicacoes) {
+  tempo_entre_chegadas <- rexp(100, rate = 2)
+  tempo_chegada <- cumsum(tempo_entre_chegadas)
+  tempo_atendimento <- rexp(100, rate = 3)
+  
+  inicio_atendimento <- numeric(100)
+  fim_atendimento <- numeric(100)
+  
+  for(i in 1:100) {
+    inicio_atendimento[i] <- ifelse(i == 1, tempo_chegada[i], 
+                                     max(tempo_chegada[i], fim_atendimento[i-1]))
+    fim_atendimento[i] <- inicio_atendimento[i] + tempo_atendimento[i]
+  }
+  
+  tempo_espera <- inicio_atendimento - tempo_chegada
+  tempos_espera_medios[rep] <- mean(tempo_espera)
+}
+```
+
+---
+
+## Exemplo 3: Intervalo de Confiança (continuação)
+
+```{r, fig.height=4}
+# Cálculo do IC 95%
+media <- mean(tempos_espera_medios)
+erro_padrao <- sd(tempos_espera_medios) / sqrt(n_replicacoes)
+ic_inferior <- media - qt(0.975, n_replicacoes-1) * erro_padrao
+ic_superior <- media + qt(0.975, n_replicacoes-1) * erro_padrao
+
+cat("IC 95% para tempo médio de espera: [", 
+    round(ic_inferior, 3), ",", round(ic_superior, 3), "] horas\n")
+
+# Visualização
+ggplot(data.frame(x = tempos_espera_medios), aes(x = x)) +
+  geom_histogram(bins = 10, fill = "lightblue", color = "black") +
+  geom_vline(xintercept = media, color = "red", size = 1.5) +
+  geom_vline(xintercept = c(ic_inferior, ic_superior), 
+             color = "red", linetype = "dashed") +
+  labs(title = "Distribuição dos Tempos Médios de Espera (30 replicações)",
+       x = "Tempo médio de espera (horas)", y = "Frequência") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+class: inverse, center, middle
+
+# Parte 6: Validação e Verificação
+
+---
+
+## Testes de Qualidade dos Números Aleatórios
+
+### 1. Teste de Uniformidade (Qui-quadrado)
+
+```{r}
+# Gerar dados
+U <- runif(1000)
+
+# Dividir em classes
+k <- 10  # número de classes
+classes <- cut(U, breaks = seq(0, 1, length.out = k+1), include.lowest = TRUE)
+observado <- table(classes)
+esperado <- rep(1000/k, k)
+
+# Teste qui-quadrado
+chi_sq <- sum((observado - esperado)^2 / esperado)
+gl <- k - 1
+p_valor <- 1 - pchisq(chi_sq, gl)
+
+cat("Estatística χ²:", chi_sq, "\n")
+cat("Graus de liberdade:", gl, "\n")
+cat("p-valor:", p_valor, "\n")
+cat("Conclusão:", ifelse(p_valor > 0.05, 
+                          "Não rejeita H0 (uniforme)", 
+                          "Rejeita H0"), "\n")
+```
+
+---
+
+## 2. Teste de Independência (Runs Test)
+
+```{r}
+# Teste de runs acima/abaixo da mediana
+U <- runif(100)
+mediana <- median(U)
+sequencia <- ifelse(U > mediana, 1, 0)
+
+# Contar runs
+runs <- 1
+for(i in 2:length(sequencia)) {
+  if(sequencia[i] != sequencia[i-1]) runs <- runs + 1
+}
+
+n1 <- sum(sequencia == 1)
+n0 <- sum(sequencia == 0)
+
+# Estatística sob H0
+media_runs <- (2*n1*n0)/(n1+n0) + 1
+var_runs <- (2*n1*n0*(2*n1*n0 - n1 - n0))/((n1+n0)^2 * (n1+n0-1))
+z <- (runs - media_runs) / sqrt(var_runs)
+
+cat("Número de runs:", runs, "\n")
+cat("Estatística Z:", z, "\n")
+cat("p-valor:", 2*(1-pnorm(abs(z))), "\n")
+```
+
+---
+
+## Teste de Aderência para Distribuições
+
+### Teste de Kolmogorov-Smirnov
+
+```{r, fig.height=4}
+# Gerar dados de uma exponencial
+X <- rexp(100, rate = 0.5)
+
+# Teste K-S
+teste_ks <- ks.test(X, "pexp", rate = 0.5)
+print(teste_ks)
+
+# Gráfico Q-Q
+qqplot(qexp(ppoints(100), rate = 0.5), X,
+       main = "Q-Q Plot: Exponencial",
+       xlab = "Quantis Teóricos", ylab = "Quantis Amostrais")
+abline(0, 1, col = "red", lwd = 2)
+```
+
+---
+
+## Resumo dos Conceitos-Chave
+
+.pull-left[
+**Fundamentos:**
+- Probabilidade e eventos
+- Variáveis aleatórias (discretas e contínuas)
+- Esperança e variância
+- Independência
+
+**Distribuições Essenciais:**
+- Uniforme (base)
+- Exponencial (tempos entre eventos)
+- Poisson (contagem de eventos)
+- Normal (fenômenos naturais)
+- Triangular (estimativas)
+]
+
+.pull-right[
+**Aplicações em Simulação:**
+- Geração de números aleatórios (U(0,1))
+- Transformação inversa
+- Modelagem de filas
+- Análise de saída
+- Intervalos de confiança
+
+**Validação:**
+- Testes de uniformidade
+- Testes de independência
+- Testes de aderência
+]
+
+---
+
+## Atividade Avaliativa
+
+**Entrega:** Próximo encontro
+
+**Formato:** Individual, documento escrito + código R
+
+**Conteúdo:**
+1. Problema de simulação de fila
+2. Análise estatística dos resultados
+3. Interpretação e conclusões
+
+**Detalhes completos no documento separado fornecido**
+
+---
+
+class: inverse, center, middle
+
+# Referências e Recursos
+
+---
+
+## Bibliografia Recomendada
+
+**Livros:**
+- Law, A. M. (2015). *Simulation Modeling and Analysis*. 5th ed. McGraw-Hill.
+- Ross, S. M. (2013). *Simulation*. 5th ed. Academic Press.
+- Banks, J. et al. (2010). *Discrete-Event System Simulation*. 5th ed. Pearson.
+
+**Artigos e Materiais:**
+- Apostila de Simulação por Eventos Discretos - UNIPAMPA
+- Introdução às Técnicas de Simulação em Estatística - UFMG
+
+**Recursos Online:**
+- Documentação do R: https://www.r-project.org/
+- Pacotes úteis: `simmer`, `queueing`, `triangle`
+
+---
+
+class: center, middle
+
+# Dúvidas?
+
+## Próxima aula: 
+### Introdução aos Softwares de Simulação
+
+**Contato:** [seu email]
+
+**Material:** Disponível no ambiente virtual
+
+---
+
+class: inverse, center, middle
+
+# Obrigado!
+
+### Bom estudo e boa atividade ava

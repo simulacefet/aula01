@@ -1,0 +1,660 @@
+---
+title: "Revisão de Estatística e Probabilidade"
+subtitle: "Fundamentos para Simulação de Eventos Discretos"
+author: "Renata Oliveira"
+date: "2026"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["default", "xaringan-themer.css"]
+    nature:
+      ratio: "16:9"
+      highlightLines: true
+      highlightStyle: solarized-light
+      countIncrementalSlides: false
+      slideNumberFormat: |
+         <div class="progress-bar-container">
+           <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+           </div>
+         </div>
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+
+```{r xaringan-editable, echo=FALSE}
+xaringanExtra::use_editable(expires = 1)
+```
+
+```{r xaringanExtra-clipboard, echo=FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa fa-clipboard\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+```{r xaringan-fit-screen, echo=FALSE}
+xaringanExtra::use_fit_screen()
+```
+
+```{r xaringan-extra-styles, echo=FALSE}
+xaringanExtra::use_extra_styles(
+  hover_code_line = TRUE,         #<<
+  mute_unhighlighted_code = TRUE  #<<
+)
+```
+
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+```
+
+
+
+class: inverse, center, middle
+
+# Por que estudar Probabilidade e Estatística?
+
+---
+
+## Situações do dia a dia de um Administrador
+
+.pull-left[
+**Você já se perguntou:**
+
+- Quantos atendentes preciso contratar?
+- Qual o estoque ideal para não faltar produto?
+- Quanto tempo os clientes esperam na fila?
+- Vale a pena abrir mais um caixa?
+- Como prever demanda futura?
+
+**Todas essas perguntas envolvem incerteza!**
+]
+
+.pull-right[
+```{r, echo=FALSE, fig.height=5}
+# Exemplo visual simples
+dias <- 1:30
+vendas <- c(45, 52, 48, 60, 55, 50, 58, 62, 48, 54,
+            56, 59, 51, 47, 53, 61, 57, 55, 49, 63,
+            58, 52, 54, 60, 56, 51, 59, 62, 55, 58)
+
+df <- data.frame(dia = dias, vendas = vendas)
+
+ggplot(df, aes(x = dia, y = vendas)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_hline(yintercept = mean(vendas), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Vendas Diárias - Há um padrão?",
+       x = "Dia do Mês", y = "Vendas (unidades)") +
+  theme_minimal(base_size = 14) +
+  annotate("text", x = 25, y = mean(vendas) + 2, 
+           label = paste("Média:", round(mean(vendas))), color = "red")
+```
+]
+
+---
+
+## O que é Probabilidade?
+
+**Definição simples:** É a chance de algo acontecer.
+
+### Exemplos práticos:
+
+- **Moeda:** P(Cara) = 50% ou 0,5
+- **Dado:** P(sair 6) = 1/6 ≈ 16,7%
+- **Cliente chegar:** P(chegar entre 9h-10h) = ?
+
+### Regra básica:
+
+$$\text{Probabilidade} = \frac{\text{Casos favoráveis}}{\text{Casos possíveis}}$$
+
+**A probabilidade sempre fica entre 0 e 1:**
+- 0 = impossível
+- 0,5 = 50% de chance
+- 1 = certeza
+
+---
+
+## Conceitos Importantes (versão simples)
+
+### Evento
+Algo que pode acontecer.
+- Exemplo: "Cliente chegar", "Produto estar em estoque"
+
+### Experimento Aleatório
+Processo que pode ter resultados diferentes.
+- Exemplo: Observar quantos clientes chegam em 1 hora
+
+### Independência
+Dois eventos são independentes quando um não afeta o outro.
+- Exemplo: Lançar uma moeda duas vezes
+
+### Variável Aleatória
+Um número que representa o resultado de algo incerto.
+- Exemplo: Número de clientes que chegam (pode ser 0, 1, 2, 3...)
+
+---
+
+class: inverse, center, middle
+
+# Medidas que Descrevem Dados
+
+---
+
+## Média (Valor Esperado)
+
+**O que é:** O valor "no meio" dos dados, a tendência central.
+
+**Como calcular:**
+$$\text{Média} = \frac{\text{Soma de todos os valores}}{\text{Quantidade de valores}}$$
+
+### Exemplo prático:
+
+Vendas da semana: 10, 15, 12, 18, 15 unidades
+
+$$\text{Média} = \frac{10 + 15 + 12 + 18 + 15}{5} = \frac{70}{5} = 14 \text{ unidades}$$
+
+**No Excel:** `=MÉDIA(A1:A5)`
+
+---
+
+## Desvio Padrão (Variabilidade)
+
+**O que é:** Mede o quanto os dados "se espalham" em torno da média.
+
+- **Desvio baixo:** Dados próximos da média (previsível)
+- **Desvio alto:** Dados espalhados (imprevisível)
+
+```{r, echo=FALSE, fig.height=4}
+par(mfrow=c(1,2))
+
+# Baixa variabilidade
+set.seed(123)
+dados1 <- rnorm(100, mean = 50, sd = 3)
+hist(dados1, main = "Baixa Variabilidade (DP = 3)", 
+     xlab = "Valores", col = "lightblue", xlim = c(30, 70))
+abline(v = mean(dados1), col = "red", lwd = 2)
+
+# Alta variabilidade
+dados2 <- rnorm(100, mean = 50, sd = 10)
+hist(dados2, main = "Alta Variabilidade (DP = 10)", 
+     xlab = "Valores", col = "lightcoral", xlim = c(30, 70))
+abline(v = mean(dados2), col = "red", lwd = 2)
+```
+
+**No Excel:** `=DESVPAD(A1:A5)`
+
+---
+
+class: inverse, center, middle
+
+# Distribuições de Probabilidade
+## (Padrões que os dados seguem)
+
+---
+
+## Distribuição Uniforme
+
+**Quando usar:** Todos os resultados têm a mesma chance.
+
+**Exemplo:** Sorteio de um número entre 1 e 10.
+
+```{r, echo=FALSE, fig.height=4}
+x <- 0:10
+y <- rep(1/11, 11)
+
+barplot(y, names.arg = x, col = "steelblue",
+        main = "Distribuição Uniforme (0 a 10)",
+        xlab = "Valores", ylab = "Probabilidade",
+        ylim = c(0, 0.15))
+```
+
+**Aplicação em Administração:**
+- Tempo de espera uniformemente distribuído
+- Seleção aleatória de itens do estoque
+
+---
+
+## Distribuição Normal (Curva do Sino)
+
+**Quando usar:** Quando a maioria dos valores fica próxima da média.
+
+```{r, echo=FALSE, fig.height=4.5}
+x <- seq(-4, 4, 0.01)
+y <- dnorm(x)
+
+plot(x, y, type = "l", lwd = 3, col = "darkblue",
+     main = "Distribuição Normal (Curva do Sino)",
+     xlab = "Valores", ylab = "Densidade",
+     yaxt = "n")
+abline(v = 0, col = "red", lty = 2, lwd = 2)
+
+# Adicionar áreas sombreadas
+polygon(c(x[x >= -1 & x <= 1], 1, -1), 
+        c(y[x >= -1 & x <= 1], 0, 0),
+        col = rgb(0, 0, 1, 0.2), border = NA)
+
+text(0, 0.2, "68% dos dados\nentre -1 e +1 DP", col = "blue", cex = 1.2)
+```
+
+**Exemplos práticos:**
+- Altura de pessoas
+- Erros de medição
+- Tempo de produção de um item
+
+---
+
+## Distribuição Exponencial
+
+**Quando usar:** Para medir **tempo entre eventos**.
+
+**Exemplo clássico:** Tempo entre chegadas de clientes.
+
+```{r, echo=FALSE, fig.height=4}
+x <- seq(0, 10, 0.1)
+y <- dexp(x, rate = 0.5)
+
+plot(x, y, type = "l", lwd = 3, col = "darkgreen",
+     main = "Tempo entre Chegadas de Clientes",
+     xlab = "Tempo (minutos)", ylab = "Probabilidade")
+grid()
+```
+
+**Característica importante:**
+- Maioria das chegadas acontece rapidamente
+- Algumas chegadas demoram mais (cauda longa)
+
+**No Excel:** `=DIST.EXPON(x; lambda; VERDADEIRO)`
+
+---
+
+## Distribuição de Poisson
+
+**Quando usar:** Para contar **quantas vezes algo acontece** em um período.
+
+**Exemplos:**
+- Quantos clientes chegam por hora?
+- Quantas ligações recebo por dia?
+- Quantos defeitos por lote?
+
+```{r, echo=FALSE, fig.height=4}
+x <- 0:15
+y <- dpois(x, lambda = 5)
+
+barplot(y, names.arg = x, col = "coral",
+        main = "Número de Clientes por Hora (média = 5)",
+        xlab = "Número de Clientes", ylab = "Probabilidade")
+```
+
+**Relação importante:**
+- Se chegadas seguem **Poisson**, o tempo entre chegadas é **Exponencial**
+
+---
+
+class: inverse, center, middle
+
+# Aplicação Prática: Simulação de Fila
+
+---
+
+## Exemplo: Padaria pela Manhã
+
+**Situação:**
+- Chegam em média **6 clientes por hora**
+- Atendimento demora em média **8 minutos**
+- Temos **1 atendente**
+
+**Perguntas:**
+1. Quanto tempo os clientes esperam?
+2. Preciso contratar mais um atendente?
+
+Vamos simular!
+
+---
+
+## Passo 1: Gerando Chegadas de Clientes
+
+```{r}
+# Parâmetros
+lambda <- 6  # 6 clientes por hora = 1 a cada 10 minutos
+n_clientes <- 20
+
+# Gerar tempos entre chegadas (em minutos)
+tempo_entre_chegadas <- rexp(n_clientes, rate = lambda/60)
+
+# Calcular momento de chegada de cada cliente
+tempo_chegada <- cumsum(tempo_entre_chegadas)
+
+# Ver os 5 primeiros
+head(data.frame(
+  Cliente = 1:n_clientes,
+  Tempo_Chegada = round(tempo_chegada, 2)
+), 5)
+```
+
+---
+
+## Passo 2: Gerando Tempos de Atendimento
+
+```{r}
+# Tempo médio de atendimento: 8 minutos
+media_atendimento <- 8
+
+# Gerar tempos de atendimento
+tempo_atendimento <- rexp(n_clientes, rate = 1/media_atendimento)
+
+# Ver estatísticas
+cat("Tempo médio gerado:", round(mean(tempo_atendimento), 2), "min\n")
+cat("Tempo mínimo:", round(min(tempo_atendimento), 2), "min\n")
+cat("Tempo máximo:", round(max(tempo_atendimento), 2), "min\n")
+```
+
+---
+
+## Passo 3: Simulando a Fila
+
+```{r}
+# Vetores para armazenar resultados
+inicio_atendimento <- numeric(n_clientes)
+fim_atendimento <- numeric(n_clientes)
+
+# Primeiro cliente
+inicio_atendimento[1] <- tempo_chegada[1]
+fim_atendimento[1] <- inicio_atendimento[1] + tempo_atendimento[1]
+
+# Demais clientes
+for(i in 2:n_clientes) {
+  # Cliente inicia quando chega OU quando atendente fica livre
+  inicio_atendimento[i] <- max(tempo_chegada[i], fim_atendimento[i-1])
+  fim_atendimento[i] <- inicio_atendimento[i] + tempo_atendimento[i]
+}
+
+# Calcular tempo de espera
+tempo_espera <- inicio_atendimento - tempo_chegada
+```
+
+---
+
+## Resultados da Simulação
+
+```{r}
+# Criar tabela resumo
+resultado <- data.frame(
+  Cliente = 1:n_clientes,
+  Chegada = round(tempo_chegada, 1),
+  Inicio = round(inicio_atendimento, 1),
+  Espera = round(tempo_espera, 1),
+  Atendimento = round(tempo_atendimento, 1),
+  Saida = round(fim_atendimento, 1)
+)
+
+# Mostrar primeiros 6 clientes
+head(resultado)
+```
+
+---
+
+## Métricas de Desempenho
+
+```{r}
+# Calcular métricas importantes
+cat("=== ANÁLISE DO SISTEMA ===\n\n")
+
+cat("Tempo médio de espera:", round(mean(tempo_espera), 2), "minutos\n")
+cat("Tempo máximo de espera:", round(max(tempo_espera), 2), "minutos\n")
+cat("Tempo médio no sistema:", 
+    round(mean(tempo_espera + tempo_atendimento), 2), "minutos\n\n")
+
+# Quantos não esperaram?
+nao_esperaram <- sum(tempo_espera == 0)
+cat("Clientes atendidos imediatamente:", nao_esperaram, 
+    "de", n_clientes, paste0("(", round(100*nao_esperaram/n_clientes), "%)"))
+```
+
+**Interpretação:** Se os clientes esperam muito, talvez precise contratar mais alguém!
+
+---
+
+## Visualizando a Fila
+
+```{r, fig.height=5}
+# Gráfico de espera por cliente
+ggplot(resultado, aes(x = Cliente, y = Espera)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = mean(tempo_espera), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Tempo de Espera por Cliente",
+       subtitle = paste("Média:", round(mean(tempo_espera), 1), "minutos"),
+       x = "Cliente", y = "Tempo de Espera (min)") +
+  theme_minimal(base_size = 14)
+```
+
+---
+
+class: inverse, center, middle
+
+# Tomada de Decisão com Dados
+
+---
+
+## Cenário: Contratar ou não um segundo atendente?
+
+**Dados do problema:**
+- Custo de um atendente: R$ 2.000/mês
+- Cada cliente gera receita de R$ 15
+- Clientes que esperam mais de 15 min desistem (30% de chance)
+
+**Análise atual (1 atendente):**
+```{r}
+# Quantos clientes esperam mais de 15 min?
+clientes_insatisfeitos <- sum(tempo_espera > 15)
+cat("Clientes que esperaram > 15 min:", clientes_insatisfeitos, "\n")
+
+# Perda potencial
+perda_potencial <- clientes_insatisfeitos * 0.30 * 15
+cat("Perda potencial por período: R$", round(perda_potencial, 2))
+```
+
+**Decisão:** Se a perda mensal superar R$ 2.000, vale contratar!
+
+---
+
+## Comparando Cenários
+
+```{r, echo=FALSE, fig.height=5}
+# Simular com 2 atendentes
+n_clientes <- 50
+tempo_chegada <- cumsum(rexp(n_clientes, rate = 6/60))
+tempo_atendimento <- rexp(n_clientes, rate = 1/8)
+
+# 1 atendente
+espera_1 <- numeric(n_clientes)
+fim_1 <- numeric(n_clientes)
+fim_1[1] <- tempo_chegada[1] + tempo_atendimento[1]
+for(i in 2:n_clientes) {
+  inicio <- max(tempo_chegada[i], fim_1[i-1])
+  espera_1[i] <- inicio - tempo_chegada[i]
+  fim_1[i] <- inicio + tempo_atendimento[i]
+}
+
+# 2 atendentes (simplificado)
+espera_2 <- espera_1 * 0.3  # Redução aproximada
+
+df_comp <- data.frame(
+  Cenario = rep(c("1 Atendente", "2 Atendentes"), each = n_clientes),
+  Cliente = rep(1:n_clientes, 2),
+  Espera = c(espera_1, espera_2)
+)
+
+ggplot(df_comp, aes(x = Cenario, y = Espera, fill = Cenario)) +
+  geom_boxplot() +
+  labs(title = "Comparação de Tempo de Espera",
+       y = "Tempo de Espera (min)") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none")
+```
+
+---
+
+## Ferramentas no Excel
+
+**Funções úteis para simulação:**
+
+| Função | O que faz | Exemplo |
+|--------|-----------|---------|
+| `=ALEATÓRIO()` | Número entre 0 e 1 | Gerar probabilidades |
+| `=ALEATÓRIOENTRE(1;10)` | Número inteiro entre 1 e 10 | Simular dado |
+| `=DIST.EXPON(x;lambda;VERDADEIRO)` | Exponencial | Tempo entre chegadas |
+| `=DIST.NORM(x;média;desvpad;VERDADEIRO)` | Normal | Variáveis naturais |
+| `=MÉDIA()` | Média dos dados | Calcular médias |
+| `=DESVPAD()` | Desvio padrão | Medir variabilidade |
+| `=SE()` | Condição | Lógica de decisão |
+
+---
+
+## Exemplo Prático no Excel
+
+**Simulando 100 chegadas de clientes:**
+
+```
+Coluna A: Cliente (1, 2, 3, ..., 100)
+Coluna B: Tempo entre chegadas
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/10)
+  
+Coluna C: Momento de chegada
+  Fórmula: =SOMA($B$2:B2)
+  
+Coluna D: Tempo de atendimento
+  Fórmula: =INV.EXPON(ALEATÓRIO();1/8)
+  
+Coluna E: Início do atendimento
+  Fórmula linha 2: =C2
+  Fórmula linha 3+: =MÁXIMO(C3;F2)
+  
+Coluna F: Fim do atendimento
+  Fórmula: =E2+D2
+  
+Coluna G: Tempo de espera
+  Fórmula: =E2-C2
+```
+
+---
+
+## Interpretando Resultados
+
+**Boas métricas indicam:**
+
+✅ Tempo médio de espera < 10 minutos  
+✅ Menos de 10% dos clientes esperam > 15 min  
+✅ Utilização do atendente entre 70-85%  
+✅ Custo-benefício positivo  
+
+**Métricas ruins indicam:**
+
+❌ Tempo médio de espera > 20 minutos  
+❌ Mais de 30% dos clientes esperam muito  
+❌ Atendente ocioso (< 50% ocupado) ou sobrecarregado (> 95%)  
+❌ Perda de clientes por insatisfação  
+
+---
+
+class: inverse, center, middle
+
+# Resumo e Conceitos-Chave
+
+---
+
+## O que aprendemos hoje
+
+.pull-left[
+**Conceitos Fundamentais:**
+- Probabilidade (chance de algo acontecer)
+- Média (valor central)
+- Desvio padrão (variabilidade)
+- Variável aleatória (número incerto)
+
+**Distribuições Importantes:**
+- Uniforme (todos iguais)
+- Normal (curva do sino)
+- Exponencial (tempo entre eventos)
+- Poisson (contagem de eventos)
+]
+
+.pull-right[
+**Aplicações Práticas:**
+- Simular chegadas de clientes
+- Calcular tempos de espera
+- Avaliar desempenho de sistemas
+- Tomar decisões baseadas em dados
+
+**Habilidades Desenvolvidas:**
+- Gerar dados aleatórios
+- Calcular métricas de desempenho
+- Interpretar resultados
+- Comparar cenários
+]
+
+---
+
+## Próximos Passos
+
+### Na próxima aula:
+
+1. **Simulação avançada** com múltiplos servidores
+2. **Análise de sensibilidade** (e se mudarmos os parâmetros?)
+3. **Otimização** (qual o melhor cenário?)
+4. **Apresentação de resultados** para tomada de decisão
+
+### Atividade para entregar:
+
+**Simulação de atendimento de uma clínica** (detalhes no documento separado)
+
+---
+
+## Dicas para Estudar
+
+1. **Pratique no Excel:** Faça simulações simples
+2. **Pense em exemplos reais:** Filas, estoques, vendas
+3. **Varie os parâmetros:** Veja como os resultados mudam
+4. **Compare cenários:** Qual opção é melhor?
+5. **Interprete sempre:** Números sozinhos não decidem!
+
+### Recursos úteis:
+
+- Tutoriais de Excel online
+- Vídeos sobre simulação
+- Material complementar no ambiente virtual
+
+---
+
+class: center, middle
+
+# Dúvidas?
+
+## Material disponível no ambiente virtual
+
+**Contato:** [seu email]
+
+**Horário de atendimento:** [definir]
+
+---
+
+class: inverse, center, middle
+
+# Obrigado!
+
+### "Dados transformam decisões!"
+
+*A estatística não é sobre números,*  
+*é sobre entender o mundo e tomar melhores decisões.*
+
+
