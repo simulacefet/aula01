@@ -6,7 +6,7 @@ date: "2026"
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    css: ["default", "xaringan-themer.css"]
+    css: ["default", "xaringan-themer.css", "ufcimg-slides.css"]
     nature:
       ratio: "16:9"
       highlightLines: true

@@ -13,7 +13,7 @@
     <script src="libs/panelset/panelset.js"></script>
     <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view/tile-view.js"></script>
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xbbf1d0cac68444bb1d71515dea3f042","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xbf3b05847d64d5db10abd55a09e8812","expires":1}</script>
     <script src="libs/himalaya/himalaya.js"></script>
     <script src="libs/js-cookie/js.cookie.js"></script>
     <link href="libs/editable/editable.css" rel="stylesheet" />
@@ -29,6 +29,7 @@
     <script src="libs/xaringanExtra-scribble/scribble.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="ufcimg-slides.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -103,12 +104,12 @@ class: inverse, center, middle
 ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2
 ## 3.4.0.
 ## ℹ Please use `linewidth` instead.
-## This warning is displayed once every 8 hours.
+## This warning is displayed once per session.
 ## Call `lifecycle::last_lifecycle_warnings()` to see where this
 ## warning was generated.
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---
@@ -184,7 +185,7 @@ Vendas da semana: 10, 15, 12, 18, 15 unidades
 - **Desvio baixo:** Dados próximos da média (previsível)
 - **Desvio alto:** Dados espalhados (imprevisível)
 
-&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 **No Excel:** `=DESVPAD(A1:A5)`
 
@@ -203,7 +204,7 @@ class: inverse, center, middle
 
 **Exemplo:** Sorteio de um número entre 1 e 10.
 
-&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 **Aplicação em Administração:**
 - Tempo de espera uniformemente distribuído
@@ -215,7 +216,7 @@ class: inverse, center, middle
 
 **Quando usar:** Quando a maioria dos valores fica próxima da média.
 
-&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 **Exemplos práticos:**
 - Altura de pessoas
@@ -230,7 +231,7 @@ class: inverse, center, middle
 
 **Exemplo clássico:** Tempo entre chegadas de clientes.
 
-&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 **Característica importante:**
 - Maioria das chegadas acontece rapidamente
@@ -249,7 +250,7 @@ class: inverse, center, middle
 - Quantas ligações recebo por dia?
 - Quantos defeitos por lote?
 
-&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 **Relação importante:**
 - Se chegadas seguem **Poisson**, o tempo entre chegadas é **Exponencial**
@@ -467,7 +468,7 @@ ggplot(resultado, aes(x = Cliente, y = Espera)) +
   theme_minimal(base_size = 14)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -512,7 +513,7 @@ cat("Perda potencial por período: R$", round(perda_potencial, 2))
 
 ## Comparando Cenários
 
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 

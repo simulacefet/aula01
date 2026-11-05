@@ -11,7 +11,7 @@ output:
       highlightLines: true
       countIncrementalSlides: false
       ratio: '16:9'
-    css: [default, default-fonts, "custom.css"]
+    css: [default, default-fonts, "custom.css", "ufcimg-slides.css"]
 ---
 
 ```{r setup, include=FALSE}
@@ -639,7 +639,7 @@ class: inverse, center, middle
 
 
 
-```{r setup, include=FALSE}
+```{r setup_2, include=FALSE}
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(
   echo = TRUE,
